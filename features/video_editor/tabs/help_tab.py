@@ -56,7 +56,7 @@ This application automatically detects scene changes in your videos and splits t
 • Support for various video formats (MP4, AVI, MOV, etc.)
 
 🔧 Processing Options:
-• Min Scene Duration: Minimum length for each scene (default: 8 seconds)
+• Min Scene Duration: Minimum length for each scene (default: 2 seconds)
 • Output Directory: Where to save the split video clips
 • Auto-open output folder: Automatically open results after processing
 • Show detailed logs: Display comprehensive processing information

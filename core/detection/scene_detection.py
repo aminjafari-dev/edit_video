@@ -5,10 +5,10 @@ Scene detection algorithms using various FFmpeg techniques.
 
 import subprocess
 from typing import List
-from video_utils import get_video_info
+from core.utils.video_utils import get_video_info
 
 
-def detect_scenes_advanced(input_video: str, min_scene_duration: float = 8.0) -> List[float]:
+def detect_scenes_advanced(input_video: str, min_scene_duration: float = 2.0) -> List[float]:
     """
     Advanced scene detection using multiple FFmpeg techniques.
     

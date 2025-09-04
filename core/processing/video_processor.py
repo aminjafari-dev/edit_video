@@ -6,7 +6,7 @@ Video processing functions for splitting videos and managing output folders.
 import os
 import subprocess
 from typing import List
-from video_utils import get_video_name
+from core.utils.video_utils import get_video_name
 
 
 def create_video_folder(video_path: str, base_output_dir: str = "smart_split") -> str:

@@ -5,9 +5,9 @@ Main video processing logic that orchestrates the workflow.
 
 import os
 from typing import List
-from video_utils import get_video_info, is_video_file
-from scene_detection import detect_scenes_advanced
-from video_processor import (
+from core.utils.video_utils import get_video_info, is_video_file
+from core.detection.scene_detection import detect_scenes_advanced
+from core.processing.video_processor import (
     create_video_folder, 
     split_video_by_scenes,
     display_video_info,

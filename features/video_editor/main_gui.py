@@ -7,11 +7,12 @@ This file imports and runs the separated GUI components.
 import sys
 import os
 
-# Add the src directory to the Python path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the project root to the Python path
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
 
 # Import the main GUI class
-from gui.video_editor_gui import VideoEditorGUI, main
+from features.video_editor.video_editor_gui import VideoEditorGUI, main
 
 if __name__ == "__main__":
     main()

@@ -11,10 +11,10 @@ import threading
 import time
 import subprocess
 import sys
-from main_processor import process_single_video, validate_video_files
-from video_utils import get_video_info
-from scene_detection import detect_scenes_advanced
-from video_processor import create_video_folder
+from core.processing.main_processor import process_single_video, validate_video_files
+from core.utils.video_utils import get_video_info
+from core.detection.scene_detection import detect_scenes_advanced
+from core.processing.video_processor import create_video_folder
 
 
 class SidebarWidget(ttk.Frame):
@@ -98,7 +98,7 @@ class SidebarWidget(ttk.Frame):
         
         # Minimum scene duration
         ttk.Label(options_frame, text="Min Scene Duration (seconds):").grid(row=0, column=0, sticky="w", pady=(0, 5))
-        self.min_duration_var = tk.DoubleVar(value=8.0)
+        self.min_duration_var = tk.DoubleVar(value=2.0)
         duration_spinbox = ttk.Spinbox(options_frame, 
                                       from_=1.0, 
                                       to=60.0, 
