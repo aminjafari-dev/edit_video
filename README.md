@@ -1,108 +1,151 @@
-# Smart Video Splitter with Individual Folders
+# Smart Video Splitter - Clean Project Structure
 
-A modular Python script that automatically detects scene boundaries in videos and splits them into individual clips, organizing each video's clips in its own folder.
+A professional, well-organized Python application for automatically detecting scene boundaries in videos and splitting them into individual clips with individual folder organization.
 
-## Features
+## 🏗️ Project Architecture
 
-- **Smart Scene Detection**: Uses multiple FFmpeg techniques to detect scene changes
-- **Individual Folders**: Creates a separate folder for each input video
-- **Multiple Video Support**: Process multiple videos in one run
-- **Fallback Methods**: Multiple scene detection algorithms with intelligent fallbacks
-- **Clean Organization**: Modular code structure for easy maintenance
-
-## Project Structure
+This project follows Clean Architecture principles with a clear separation of concerns:
 
 ```
-edit_video/
-├── smart_split_with_folders.py  # Main entry point (now much smaller!)
-├── run.py                       # Alternative launcher
-├── video_utils.py              # Video information and utility functions
-├── scene_detection.py          # Scene detection algorithms
-├── video_processor.py          # Video splitting and folder management
-├── main_processor.py           # Main processing workflow
-└── README.md                   # This file
+clean_project/
+├── core/                           # Core business logic and utilities
+│   ├── utils/                      # Utility functions
+│   │   └── video_utils.py         # Video information and utility functions
+│   ├── detection/                  # Scene detection algorithms
+│   │   └── scene_detection.py     # Advanced scene detection using FFmpeg
+│   └── processing/                 # Video processing logic
+│       ├── video_processor.py     # Video splitting and folder management
+│       └── main_processor.py      # Main processing workflow orchestration
+├── features/                       # Feature-specific modules
+│   └── video_editor/              # Video editor GUI feature
+│       ├── gui/                   # Main GUI components
+│       │   ├── video_editor_gui.py # Main GUI class
+│       │   └── README.md          # GUI documentation
+│       ├── tabs/                  # GUI tab components
+│       │   ├── help_tab.py        # Help and documentation tab
+│       │   ├── logs_tab.py        # Processing logs tab
+│       │   ├── processing_tab.py  # Progress and statistics tab
+│       │   └── results_tab.py     # Results display tab
+│       ├── widgets/               # Reusable GUI widgets
+│       │   ├── sidebar.py         # Main control sidebar
+│       │   └── status_bar.py      # Status display bar
+│       ├── utils/                 # GUI utility functions
+│       │   └── gui_utils.py       # Common GUI operations
+│       └── main_gui.py            # Main GUI entry point
+├── scripts/                        # Executable scripts
+│   ├── smart_split_with_folders.py # Main CLI script
+│   └── run.py                     # Alternative launcher
+└── docs/                          # Documentation
+    └── README.md                  # Original project documentation
 ```
 
-## Requirements
+## 🚀 Quick Start
+
+### Command Line Interface
+```bash
+# From the clean_project directory
+python scripts/smart_split_with_folders.py video.mp4
+python scripts/run.py video.mp4
+```
+
+### GUI Interface
+```bash
+# From the clean_project directory
+python features/video_editor/main_gui.py
+```
+
+## ✨ Key Features
+
+- **Smart Scene Detection**: Multiple FFmpeg-based algorithms with intelligent fallbacks
+- **Individual Folders**: Creates separate folders for each video's clips
+- **Multiple Video Support**: Batch process multiple videos in one run
+- **Modern GUI**: Professional interface with progress tracking and detailed logs
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **No Dependencies**: Uses only Python standard library and FFmpeg
+
+## 🔧 Requirements
 
 - Python 3.6+
-- FFmpeg (must be installed and available in PATH)
+- FFmpeg (must be installed and available in system PATH)
 
-## Installation
+## 📋 Usage Examples
 
-1. Ensure FFmpeg is installed on your system
-2. Clone or download the project files
-3. No additional Python packages required (uses only standard library)
-
-## Usage
-
-### Basic Usage
-
+### Process a single video
 ```bash
-# Process a single video
-python smart_split_with_folders.py video.mp4
-
-# Process multiple videos
-python smart_split_with_folders.py video1.mp4 video2.mp4 video3.mp4
-
-# Process all MP4 files in current directory
-python smart_split_with_folders.py *.mp4
+python scripts/smart_split_with_folders.py my_video.mp4
 ```
 
-### Alternative Launcher
-
+### Process multiple videos
 ```bash
-python run.py video.mp4
+python scripts/smart_split_with_folders.py video1.mp4 video2.mp4 video3.mp4
 ```
 
-## Output Structure
+### Process all MP4 files in current directory
+```bash
+python scripts/smart_split_with_folders.py *.mp4
+```
 
-The script creates a `smart_split/` directory with subdirectories for each video:
+### Launch GUI
+```bash
+python features/video_editor/main_gui.py
+```
+
+## 📁 Output Structure
+
+The application creates a `smart_split/` directory with organized output:
 
 ```
 smart_split/
-├── video1/
+├── video1_name/
 │   ├── clip_01.mp4
 │   ├── clip_02.mp4
 │   └── clip_03.mp4
-├── video2/
+├── video2_name/
 │   ├── clip_01.mp4
 │   └── clip_02.mp4
 └── ...
 ```
 
-## How It Works
+## 🏛️ Architecture Benefits
 
-1. **Video Analysis**: Extracts video metadata (duration, resolution, FPS)
-2. **Scene Detection**: Uses multiple algorithms to find scene boundaries:
-   - FFmpeg scene filter
-   - Frame difference analysis
-   - Intelligent splitting based on video duration
-3. **Video Splitting**: Cuts video at detected boundaries using FFmpeg
-4. **Organization**: Creates individual folders for each video's clips
-
-## Code Organization
-
-- **`video_utils.py`**: Core video operations and information extraction
-- **`scene_detection.py`**: All scene detection algorithms and methods
-- **`video_processor.py`**: Video splitting, folder creation, and display functions
-- **`main_processor.py`**: Main workflow orchestration
-- **`smart_split_with_folders.py`**: Clean entry point (now only ~30 lines!)
-
-## Benefits of Modular Structure
-
+- **Clean Separation**: Core logic, GUI features, and scripts are clearly separated
 - **Maintainability**: Each module has a single responsibility
-- **Reusability**: Functions can be imported and used independently
-- **Testing**: Easier to test individual components
-- **Readability**: Smaller files are easier to understand
-- **Collaboration**: Multiple developers can work on different modules
+- **Scalability**: Easy to add new features or modify existing ones
+- **Testing**: Modular structure enables easy unit testing
+- **Collaboration**: Multiple developers can work on different components
+- **Documentation**: Comprehensive documentation for each component
 
-## Troubleshooting
+## 🔍 Scene Detection Methods
 
-- **FFmpeg not found**: Ensure FFmpeg is installed and in your system PATH
-- **Permission errors**: Check write permissions for the output directory
-- **Large files**: Processing very large videos may take time and require sufficient disk space
+1. **FFmpeg Scene Filter**: Primary method using FFmpeg's built-in scene detection
+2. **Frame Difference Analysis**: Fallback method analyzing frame differences
+3. **Intelligent Splitting**: Smart fallback based on video duration and characteristics
 
-## License
+## 🎯 Use Cases
+
+- **Content Creators**: Split long videos into shorter clips for social media
+- **Video Editors**: Automatically segment videos for editing workflows
+- **Educators**: Break down long lectures into digestible segments
+- **Streamers**: Organize recorded streams into highlight clips
+
+## 📚 Documentation
+
+- **Core Documentation**: See `docs/README.md` for detailed technical information
+- **GUI Documentation**: See `features/video_editor/README.md` for GUI-specific details
+- **Code Comments**: All code is thoroughly documented with examples
+
+## 🤝 Contributing
+
+This project is open for contributions. The clean architecture makes it easy to:
+- Add new scene detection algorithms
+- Enhance the GUI with new features
+- Improve video processing capabilities
+- Add support for new video formats
+
+## 📄 License
 
 This project is open source and available under the MIT License.
+
+---
+
+**Built with ❤️ using Clean Architecture principles**
