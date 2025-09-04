@@ -16,13 +16,14 @@ from core.processing.video_processor import (
 )
 
 
-def process_single_video(input_video: str, base_output_dir: str = "smart_split") -> bool:
+def process_single_video(input_video: str, base_output_dir: str = "smart_split", min_scene_duration: float = 2.0) -> bool:
     """
     Process a single video: detect scenes and split into clips in its own folder.
     
     Args:
         input_video: Path to the input video file
         base_output_dir: Base directory for all split videos
+        min_scene_duration: Minimum duration for a scene in seconds
         
     Returns:
         True if successful, False otherwise
@@ -45,7 +46,8 @@ def process_single_video(input_video: str, base_output_dir: str = "smart_split")
     display_video_info(info)
     
     # Detect scenes automatically
-    scene_timestamps = detect_scenes_advanced(input_video)
+    print(f"🔍 Using minimum scene duration: {min_scene_duration} seconds")
+    scene_timestamps = detect_scenes_advanced(input_video, min_scene_duration)
     
     if len(scene_timestamps) < 2:
         print("❌ Could not detect any scene boundaries")
@@ -64,13 +66,14 @@ def process_single_video(input_video: str, base_output_dir: str = "smart_split")
     return len(clips) > 0
 
 
-def process_multiple_videos(video_paths: List[str], base_output_dir: str = "smart_split") -> None:
+def process_multiple_videos(video_paths: List[str], base_output_dir: str = "smart_split", min_scene_duration: float = 2.0) -> None:
     """
     Process multiple videos, creating individual folders for each.
     
     Args:
         video_paths: List of paths to video files
         base_output_dir: Base directory for all split videos
+        min_scene_duration: Minimum duration for a scene in seconds
     """
     print(f"🚀 Processing {len(video_paths)} videos...")
     print(f"Base output directory: {os.path.abspath(base_output_dir)}")
@@ -80,7 +83,7 @@ def process_multiple_videos(video_paths: List[str], base_output_dir: str = "smar
     
     for video_path in video_paths:
         try:
-            if process_single_video(video_path, base_output_dir):
+            if process_single_video(video_path, base_output_dir, min_scene_duration):
                 successful += 1
             else:
                 failed += 1

@@ -30,7 +30,7 @@ def main():
     
     print(f"✅ Found {len(valid_videos)} valid video files to process")
     
-    # Process all videos
+    # Process all videos (using default min scene duration of 2.0 seconds)
     process_multiple_videos(valid_videos)
 
 

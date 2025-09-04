@@ -263,6 +263,10 @@ class SidebarWidget(ttk.Frame):
         self.main_gui.processing_tab.start_current_file_progress()
         self.main_gui.processing_tab.update_status("Starting processing...")
         
+        # Log current processing options
+        options = self.get_processing_options()
+        self.main_gui.logs_tab.log_message(f"⚙️ Processing options: Min duration={options['min_scene_duration']}s, Output={options['output_directory']}, Show logs={options['show_detailed_logs']}")
+        
         # Start processing thread
         self.main_gui.processing_thread = threading.Thread(
             target=self.process_videos_thread,
@@ -297,8 +301,10 @@ class SidebarWidget(ttk.Frame):
                 self.main_gui.update_queue.put(('status', f"Processing {os.path.basename(video_path)}..."))
                 
                 # Process single video
+                min_duration = self.min_duration_var.get()
+                self.main_gui.logs_tab.log_message(f"🔧 Processing with min scene duration: {min_duration} seconds")
                 try:
-                    success = process_single_video(video_path, self.output_dir_var.get())
+                    success = process_single_video(video_path, self.output_dir_var.get(), min_duration)
                     if success:
                         self.main_gui.completed_files += 1
                         # Count clips created
@@ -441,3 +447,16 @@ class SidebarWidget(ttk.Frame):
     def disable_stop_button(self):
         """Disable the stop button."""
         self.stop_button.config(state='disabled')
+    
+    def get_processing_options(self):
+        """Get the current processing options as a dictionary.
+        
+        Returns:
+            dict: Dictionary containing current processing options
+        """
+        return {
+            'min_scene_duration': self.min_duration_var.get(),
+            'output_directory': self.output_dir_var.get(),
+            'auto_open_output': self.auto_open_var.get(),
+            'show_detailed_logs': self.show_logs_var.get()
+        }
