@@ -47,45 +47,103 @@ def split_video_by_scenes(input_video: str, scene_timestamps: List[float],
     Returns:
         List of paths to created video clips
     """
+    from core.utils.video_utils import get_ffmpeg_path
+    
+    # Get FFmpeg path
+    ffmpeg_path = get_ffmpeg_path()
+    if not ffmpeg_path:
+        print("❌ Error: FFmpeg not found")
+        return []
+    
+    # Convert to absolute paths
+    input_video = os.path.abspath(input_video)
+    output_dir = os.path.abspath(output_dir)
+    
     output_paths = []
+    total_clips = len(scene_timestamps) - 1
     
-    print(f"\n✂️  Splitting video into {len(scene_timestamps) - 1} clips...")
+    print(f"\n✂️  Splitting video into {total_clips} clips...")
     
-    for i in range(len(scene_timestamps) - 1):
+    for i in range(total_clips):
+        # Calculate timestamps with adjustments to avoid overlap
         start_time = scene_timestamps[i]
         end_time = scene_timestamps[i + 1]
-        duration = end_time - start_time
+        
+        # Add small padding to avoid overlap
+        padding = 0.04  # About 1 frame at 25fps
+        adjusted_start = start_time + padding
+        adjusted_end = end_time - padding
+        duration = adjusted_end - adjusted_start
+        
+        # Skip if duration becomes too short
+        if duration < 0.1:
+            print(f"⚠️ Skipping clip {i+1} - too short after adjustment")
+            continue
         
         # Generate output filename
         output_filename = f"clip_{i+1:02d}.mp4"
         output_path = os.path.join(output_dir, output_filename)
         
-        print(f"\nProcessing clip {i+1}:")
-        print(f"  Time: {start_time:.2f}s to {end_time:.2f}s")
+        print(f"\nProcessing clip {i+1}/{total_clips}:")
+        print(f"  Time: {adjusted_start:.2f}s to {adjusted_end:.2f}s")
         print(f"  Duration: {duration:.2f}s")
         
-        # Use FFmpeg to extract the clip
+        # Two-pass encoding for better quality
         cmd = [
-            'ffmpeg',
+            ffmpeg_path,
+            '-ss', str(adjusted_start),  # Seek before input for accuracy
             '-i', input_video,
-            '-ss', str(start_time),
             '-t', str(duration),
-            '-c:v', 'libx264',
-            '-c:a', 'aac',
-            '-avoid_negative_ts', 'make_zero',
-            '-y',
+            '-map', '0:v:0',            # First video stream
+            '-map', '0:a:0?',           # First audio stream (if exists)
+            '-c:v', 'libx264',          # Video codec
+            '-preset', 'medium',         # Balance between speed and quality
+            '-crf', '18',               # High quality
+            '-c:a', 'aac',              # Audio codec
+            '-b:a', '192k',             # Audio bitrate
+            '-af', 'apad',              # Audio padding
+            '-shortest',                 # Cut to shortest stream
+            '-copyts',                  # Copy timestamps
+            '-avoid_negative_ts', '1',  # Avoid negative timestamps
+            '-y',                       # Overwrite output
             output_path
         ]
         
         try:
-            # Run FFmpeg command
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            print(f"  ✅ Saved as: {output_filename}")
-            output_paths.append(output_path)
+            # Start FFmpeg process
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True
+            )
             
-        except subprocess.CalledProcessError as e:
-            print(f"  ❌ Error: {e}")
-            continue
+            # Monitor the process
+            print("  ⏳ Processing clip...", end='\r')
+            _, stderr = process.communicate()
+            
+            # Check if the file was created successfully
+            if process.returncode == 0 and os.path.exists(output_path):
+                file_size = os.path.getsize(output_path) / (1024 * 1024)  # Size in MB
+                print(f"  ✅ Saved as: {output_filename} ({file_size:.2f} MB)")
+                output_paths.append(output_path)
+            else:
+                print(f"  ❌ Error processing clip: {stderr}")
+                # Clean up failed output
+                if os.path.exists(output_path):
+                    try:
+                        os.remove(output_path)
+                    except:
+                        pass
+                        
+        except Exception as e:
+            print(f"  ❌ Error: {str(e)}")
+            # Clean up failed output
+            if os.path.exists(output_path):
+                try:
+                    os.remove(output_path)
+                except:
+                    pass
     
     return output_paths
 
