@@ -88,47 +88,43 @@ def split_video_by_scenes(input_video: str, scene_timestamps: List[float],
         print(f"  Time: {adjusted_start:.2f}s to {adjusted_end:.2f}s")
         print(f"  Duration: {duration:.2f}s")
         
-        # Two-pass encoding for better quality
+        # Improved FFmpeg command for accurate seeking and cutting
         cmd = [
             ffmpeg_path,
-            '-ss', str(adjusted_start),  # Seek before input for accuracy
-            '-i', input_video,
-            '-t', str(duration),
-            '-map', '0:v:0',            # First video stream
-            '-map', '0:a:0?',           # First audio stream (if exists)
-            '-c:v', 'libx264',          # Video codec
-            '-preset', 'medium',         # Balance between speed and quality
-            '-crf', '18',               # High quality
-            '-c:a', 'aac',              # Audio codec
-            '-b:a', '192k',             # Audio bitrate
-            '-af', 'apad',              # Audio padding
-            '-shortest',                 # Cut to shortest stream
-            '-copyts',                  # Copy timestamps
-            '-avoid_negative_ts', '1',  # Avoid negative timestamps
-            '-y',                       # Overwrite output
+            '-i', input_video,          # Input file
+            '-ss', str(adjusted_start), # Seek position (after input for accuracy)
+            '-t', str(duration),        # Duration to cut
+            '-map', '0:v:0',           # First video stream
+            '-map', '0:a:0?',          # First audio stream (if exists)
+            '-c:v', 'libx264',         # Video codec
+            '-preset', 'medium',        # Balance between speed and quality
+            '-crf', '18',              # High quality
+            '-c:a', 'aac',             # Audio codec
+            '-b:a', '192k',            # Audio bitrate
+            '-af', 'apad',             # Audio padding
+            '-shortest',                # Cut to shortest stream
+            '-async', '1',             # Audio sync method
+            '-y',                      # Overwrite output
             output_path
         ]
         
         try:
             # Start FFmpeg process
-            process = subprocess.Popen(
+            print("  ⏳ Processing clip...", end='\r')
+            result = subprocess.run(
                 cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                universal_newlines=True
+                capture_output=True,
+                text=True
             )
             
-            # Monitor the process
-            print("  ⏳ Processing clip...", end='\r')
-            _, stderr = process.communicate()
-            
             # Check if the file was created successfully
-            if process.returncode == 0 and os.path.exists(output_path):
+            if result.returncode == 0 and os.path.exists(output_path):
                 file_size = os.path.getsize(output_path) / (1024 * 1024)  # Size in MB
                 print(f"  ✅ Saved as: {output_filename} ({file_size:.2f} MB)")
                 output_paths.append(output_path)
             else:
-                print(f"  ❌ Error processing clip: {stderr}")
+                print(f"  ❌ Error processing clip: {result.stderr}")
+                print(f"  Command was: {' '.join(cmd)}")  # Print the command for debugging
                 # Clean up failed output
                 if os.path.exists(output_path):
                     try:

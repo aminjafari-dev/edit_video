@@ -221,13 +221,30 @@ class VideoEditorGUI:
 def main():
     """Main entry point for the Video Editor GUI application."""
     try:
-        # Check if FFmpeg is available
+        # Get the project root directory
+        project_root = Path(__file__).parent.parent.parent.absolute()
+        
+        # Look for FFmpeg in the project's bin directory
+        ffmpeg_path = project_root / 'bin' / 'ffmpeg-8.0-essentials_build' / 'ffmpeg-8.0-essentials_build' / 'bin' / 'ffmpeg.exe'
+        
+        if not ffmpeg_path.exists():
+            from tkinter import messagebox
+            messagebox.showerror("FFmpeg Not Found", 
+                               "FFmpeg is required but not found in the expected location.\n\n"
+                               f"Expected path: {ffmpeg_path}\n\n"
+                               "Please ensure FFmpeg is properly extracted in the bin directory.")
+            return
+            
+        # Add FFmpeg directory to PATH
+        os.environ['PATH'] = f"{ffmpeg_path.parent}{os.pathsep}{os.environ['PATH']}"
+        
+        # Verify FFmpeg is now accessible
         result = subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True)
         if result.returncode != 0:
             from tkinter import messagebox
-            messagebox.showerror("FFmpeg Not Found", 
-                               "FFmpeg is required but not found in your system PATH.\n\n"
-                               "Please install FFmpeg and ensure it's accessible from the command line.")
+            messagebox.showerror("FFmpeg Error", 
+                               "FFmpeg was found but failed to execute.\n\n"
+                               "Please ensure the FFmpeg files are not corrupted.")
             return
         
         # Create and run the GUI
